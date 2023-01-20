@@ -8,10 +8,11 @@ package com.dominio.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dominio.entity.Message;
 import com.dominio.impl.WebSocketImpl;
 
 @RestController
@@ -27,27 +28,34 @@ public class WebSocketController {
 	 * @param msg
 	 */
 
+	/*
 	@PostMapping(value = "sendMsgToClientById")
-	public void sendMsgToClientById(@RequestParam String token, @RequestParam String text){
-	    try {
+	public void sendMsgToClientById(@RequestBody Message message){
+	    
+		Message msg = new Message();
+		
+		try {
 
-			webSocketProcess.sendMessage(token,text); 
+			webSocketProcess.sendMessage(msg.getToken(),msg.getText()); 
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
 	}
+	*/
 
-	/**
-	 * Enviar mensagem a todos os clientes
-	 * @param msg
-	 */
+	
+	/* Enviar mensagem a todos os clientes
+	  @param msg
+	*/
+	
 	@PostMapping(value = "sendMsgToAllClient")
-	public void sendMsgToAllClient(@RequestParam String text){
+	public void sendMsgToAllClient(@RequestBody Message msg){
 	    try {
-	        webSocketProcess.sendAllMessage(text);
+	        webSocketProcess.sendAllMessage(msg);
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
 	}
+	
 
 }

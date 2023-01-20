@@ -5,6 +5,22 @@ package com.dominio.impl;
 
 
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.websocket.EncodeException;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+import javax.websocket.server.PathParam;
+import javax.websocket.server.ServerEndpoint;
+
 import org.apache.log4j.Logger;
 /**
  * @author diego.molina
@@ -15,19 +31,11 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import javax.websocket.*;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
-
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import com.dominio.entity.Message;
+import com.dominio.websocket.lib.MessageTextEncoder;
 
 @Component
-@ServerEndpoint(value = "/testWebSocket/{token}")
+@ServerEndpoint(value = "/testWebSocket/{token}", encoders = { MessageTextEncoder.class })
 public class WebSocketImpl {
 
 	private static final Logger LOG = Logger.getLogger(WebSocketImpl.class);
@@ -113,7 +121,7 @@ public class WebSocketImpl {
 	 * Enviar mensagns a todos os clientes
 	 * 
 	 */
-	public void sendAllMessage(String msg) throws Exception {
+	public void sendAllMessage(Message msg) throws Exception, EncodeException {
 //		System.out.println("online client count={}" + concurrentHashMap.size());
 		LOG.info("online client count={}" + concurrentHashMap.size());
 		Set<Map.Entry<String, WebSocketImpl>> entries = concurrentHashMap.entrySet();
@@ -123,7 +131,7 @@ public class WebSocketImpl {
 			boolean sessionOpen = webSocketProcess.session.isOpen();
 			if (sessionOpen) {
 //				  webSocketProcess.session.getAsyncRemote().sendText(msg);
-				webSocketProcess.session.getBasicRemote().sendText(msg);
+				webSocketProcess.session.getBasicRemote().sendObject(msg);
 			} else {
 //				System.out.println("cid={} is closed,ignore send text" + cid);
 				LOG.info("cid={} is closed,ignore send text" + cid);
@@ -131,10 +139,12 @@ public class WebSocketImpl {
 		}
 	}
 	
+	/*
 	public static String readFileAsString(String file) throws Exception {
 		byte[] utf8 = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.ISO_8859_1).getBytes("UTF-8");;
 		String content = new String(utf8);
 		return content;
 	}
+	*/
 
 }
